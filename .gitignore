@@ -1,0 +1,9 @@
+build
+.DS_Store
+node_modules
+.idea
+cache
+artifacts
+.zos.session
+zos.local.json
+.env
