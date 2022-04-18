@@ -15,6 +15,11 @@ FORWARDER=Forwarder.sol
 COLLECTION_MANAGER=CollectionManager.sol
 RARITIES=Rarities.sol
 
+BID=ERC721Bid.sol
+
+MARKETPLACE=Marketplace.sol
+MARKETPLACEV2=MarketplaceV2.sol
+
 OUTPUT=full
 
 node_modules/.bin/hardhat flatten contracts/collections/v1/$ERC721_COLLECTION > $OUTPUT/$ERC721_COLLECTION
@@ -29,7 +34,6 @@ node_modules/.bin/hardhat flatten contracts/commons/$FORWARDER > $OUTPUT/$FORWAR
 node_modules/.bin/hardhat flatten contracts/managers/$COMMITTEE > $OUTPUT/$COMMITTEE
 node_modules/.bin/hardhat flatten contracts/managers/$COLLECTION_MANAGER > $OUTPUT/$COLLECTION_MANAGER
 node_modules/.bin/hardhat flatten contracts/managers/$RARITIES > $OUTPUT/$RARITIES
-
-
-
-
+node_modules/.bin/hardhat flatten contracts/bid/$BID > $OUTPUT/$BID
+node_modules/.bin/hardhat flatten contracts/marketplace/$MARKETPLACE > $OUTPUT/$MARKETPLACE
+node_modules/.bin/hardhat flatten contracts/marketplace/$MARKETPLACEV2 > $OUTPUT/$MARKETPLACEV2

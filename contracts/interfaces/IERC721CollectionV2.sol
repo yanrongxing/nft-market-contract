@@ -13,8 +13,9 @@ interface IERC721CollectionV2 {
         address beneficiary;
         string metadata;
     }
-
+    function creator() external view returns (address);
     function issueTokens(address[] calldata _beneficiaries, uint256[] calldata _itemIds) external;
+    function decodeTokenId(uint256 _tokenId) external view returns (uint256, uint256);
     function setApproved(bool _value) external;
     /// @dev For some reason using the Struct Item as an output parameter fails, but works as an input parameter
     function initialize(

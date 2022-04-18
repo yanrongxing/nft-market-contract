@@ -1,5 +1,4 @@
 import { ethers } from "hardhat"
-import * as MarketplaceConfig from 'marketplace-contracts/artifacts/contracts/marketplace/Marketplace.sol/Marketplace.json'
 import * as ManaConfig from 'decentraland-mana/build/contracts/MANAToken.json'
 
 import {
@@ -39,7 +38,8 @@ const DEFAULT_RARITY_PRICE = '100000000000000000000' // 100 MANA
 
 const OWNER_CUT_PER_MILLION = 25000
 
-
+const FEES_COLLECTOR_CUT_PER_MILLION = 0
+const ROYALTIES_CUT_PER_MILLION = 25000
 /**
  * @dev Steps:
  * Deploy the Collection implementation
@@ -97,8 +97,7 @@ async function main() {
   const collectionFactoryV2 = await ERC721CollectionFactoryV2.deploy(forwarder.address, collectonImp.address)
 
 
-
-  const Marketplace = new ethers.ContractFactory(MarketplaceConfig.abi, MarketplaceConfig.bytecode, ethers.provider.getSigner())
+  const Marketplace = new ethers.ContractFactory("MarketplaceV2")
   const marketplace = await Marketplace.deploy(
     acceptedToken,
     OWNER_CUT_PER_MILLION,
@@ -107,7 +106,17 @@ async function main() {
 
   // Deploy collection store
   const CollectionStore = await ethers.getContractFactory("CollectionStore")
-  const collectionStore = await CollectionStore.deploy(owner, MANA[network], owner, OWNER_CUT_PER_MILLION)
+  const collectionStore = await CollectionStore.deploy(owner, acceptedToken, owner, OWNER_CUT_PER_MILLION)
+
+  const BidContract = await ethers.getContractFactory("ERC721Bid")
+  const bidContract = await BidContract.deploy(
+    owner,
+    collectionDeploymentsFeesCollector,
+    acceptedToken,
+    rarities.address,
+    FEES_COLLECTOR_CUT_PER_MILLION,
+    ROYALTIES_CUT_PER_MILLION
+  )
 
   console.log(`Contract deployed by: ${accountAddress}`)
   console.log('Mana:', acceptedToken)
@@ -119,6 +128,7 @@ async function main() {
   console.log('Collection Factory:', collectionFactoryV2.address)
   console.log('Collection Store:', collectionStore.address)
   console.log('NFT Marketplace:', marketplace.address)
+  console.log('bidContract:', bidContract.address)
 }
 
 main()
