@@ -54,22 +54,25 @@ async function main() {
 
   const account = ethers.provider.getSigner()
   const accountAddress = await account.getAddress()
+  console.log(`Contract deployed by: ${accountAddress}`)
 
   const network = NETWORKS[(process.env['NETWORK'] || 'LOCALHOST') as NETWORKS]
   if (!network) {
     throw ('Invalid network')
   }
   // Deploy collection marketplace
-  let acceptedToken: string = MANA[network]
+  let acceptedToken: string = '';
 
-  if (network === 'LOCALHOST') {
-    const Mana = new ethers.ContractFactory(ManaConfig.abi, MANA_BYTECODE, ethers.provider.getSigner())
-    const mana = await Mana.deploy()
-    acceptedToken = mana.address
-  }
+
+  const Mana = new ethers.ContractFactory(ManaConfig.abi, MANA_BYTECODE, ethers.provider.getSigner())
+  const mana = await Mana.deploy()
+  acceptedToken = mana.address
+  console.log('Mana:', acceptedToken)
+
   // Deploy the collection implementation
   const Collection = await ethers.getContractFactory("ERC721CollectionV2")
   const collectonImp = await Collection.deploy()
+  console.log('Collection imp:', collectonImp.address)
 
   // Deploy the rarities
   const Rarities = await ethers.getContractFactory("Rarities")
@@ -78,23 +81,27 @@ async function main() {
     rarity.value,
     DEFAULT_RARITY_PRICE,
   ]))
-
+  console.log('Rarities:', rarities.address)
   // Deploy the committee
   const Committee = await ethers.getContractFactory("Committee")
   const committee = await Committee.deploy(owner, process.env['COMMITTEE_MEMBERS']?.split(','))
+  console.log('Committee:', committee.address)
 
   // Deploy the collection manager
   const CollectionManager = await ethers.getContractFactory("CollectionManager")
   const collectionManager = await CollectionManager.deploy(owner, acceptedToken, committee.address, collectionDeploymentsFeesCollector, rarities.address, [RESCUE_ITEMS_SELECTOR,
     SET_APPROVE_COLLECTION_SELECTOR, SET_EDITABLE_SELECTOR], [true, true, true])
+    console.log('Collection Manager :', collectionManager.address)
 
   // Deploy the forwarder
   const Forwarder = await ethers.getContractFactory("Forwarder")
   const forwarder = await Forwarder.deploy(owner, collectionManager.address)
+  console.log('Forwarder:', forwarder.address)
 
   // Deploy the forwarder
   const ERC721CollectionFactoryV2 = await ethers.getContractFactory("ERC721CollectionFactoryV2")
   const collectionFactoryV2 = await ERC721CollectionFactoryV2.deploy(forwarder.address, collectonImp.address)
+  console.log('Collection Factory:', collectionFactoryV2.address)
 
 
   const Marketplace = await ethers.getContractFactory("MarketplaceV2");
@@ -103,10 +110,12 @@ async function main() {
     OWNER_CUT_PER_MILLION,
     owner,
   )
+  console.log('NFT Marketplace:', marketplace.address)
 
   // Deploy collection store
   const CollectionStore = await ethers.getContractFactory("CollectionStore")
   const collectionStore = await CollectionStore.deploy(owner, acceptedToken, owner, OWNER_CUT_PER_MILLION)
+  console.log('Collection Store:', collectionStore.address)
 
   const BidContract = await ethers.getContractFactory("ERC721Bid")
   const bidContract = await BidContract.deploy(
@@ -117,18 +126,8 @@ async function main() {
     FEES_COLLECTOR_CUT_PER_MILLION,
     ROYALTIES_CUT_PER_MILLION
   )
-
-  console.log(`Contract deployed by: ${accountAddress}`)
-  console.log('Mana:', acceptedToken)
-  console.log('Collection imp:', collectonImp.address)
-  console.log('Rarities:', rarities.address)
-  console.log('Committee:', committee.address)
-  console.log('Collection Manager :', collectionManager.address)
-  console.log('Forwarder:', forwarder.address)
-  console.log('Collection Factory:', collectionFactoryV2.address)
-  console.log('Collection Store:', collectionStore.address)
-  console.log('NFT Marketplace:', marketplace.address)
   console.log('bidContract:', bidContract.address)
+
 }
 
 main()
