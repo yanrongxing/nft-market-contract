@@ -104,11 +104,14 @@ async function main() {
   console.log('Collection Factory:', collectionFactoryV2.address)
 
 
-  const Marketplace = await ethers.getContractFactory("MarketplaceV2");
+  const Marketplace = await ethers.getContractFactory("MarketplaceV2")
   const marketplace = await Marketplace.deploy(
-    acceptedToken,
-    OWNER_CUT_PER_MILLION,
     owner,
+    collectionDeploymentsFeesCollector,
+    acceptedToken,
+    rarities.address,
+    FEES_COLLECTOR_CUT_PER_MILLION,
+    ROYALTIES_CUT_PER_MILLION
   )
   console.log('NFT Marketplace:', marketplace.address)
 
