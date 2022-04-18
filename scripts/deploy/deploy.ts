@@ -97,7 +97,7 @@ async function main() {
   const collectionFactoryV2 = await ERC721CollectionFactoryV2.deploy(forwarder.address, collectonImp.address)
 
 
-  const Marketplace = new ethers.ContractFactory("MarketplaceV2")
+  const Marketplace = await ethers.getContractFactory("MarketplaceV2");
   const marketplace = await Marketplace.deploy(
     acceptedToken,
     OWNER_CUT_PER_MILLION,
