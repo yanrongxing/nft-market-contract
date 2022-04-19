@@ -393,6 +393,9 @@ contract ERC721CollectionFactoryV2 is Ownable, MinimalProxyFactory {
     address[] public collections;
     mapping(address => bool) public isCollectionFromFactory;
 
+    event createCollection(address indexed _addr, bool indexed _isCollectionFromFactory);
+
+
     /**
     * @notice Create the contract
     * @param _owner - contract owner
@@ -419,6 +422,7 @@ contract ERC721CollectionFactoryV2 is Ownable, MinimalProxyFactory {
         // This use storage and therefore make deployments expensive.
         collections.push(addr);
         isCollectionFromFactory[addr] = true;
+        emit createCollection(addr,true);
     }
 
     /**
