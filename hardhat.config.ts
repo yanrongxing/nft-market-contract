@@ -101,8 +101,8 @@ module.exports = {
     },
     tixon: {
       url: 'http://217.174.153.45:8545/',
-      blockGasLimit: 3141592,
-      gas: 3141592,
+      blockGasLimit: 10000000,
+      gas: 10000000,
       network_id: '*', // eslint-disable-line camelcase
       accounts:[process.env.PRIV_KEY]
     },
