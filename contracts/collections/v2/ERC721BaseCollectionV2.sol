@@ -11,7 +11,7 @@ import "../../commons//NativeMetaTransaction.sol";
 import "../../tokens/ERC721Initializable.sol";
 import "../../libs/String.sol";
 
-abstract contract ERC721BaseCollectionV3 is OwnableInitializable, ERC721Initializable, NativeMetaTransaction {
+abstract contract ERC721BaseCollectionV2 is OwnableInitializable, ERC721Initializable, NativeMetaTransaction {
     using String for bytes32;
     using String for uint256;
     using String for address;

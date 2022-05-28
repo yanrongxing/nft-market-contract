@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "../../commons/MinimalProxyFactory.sol";
 
+
 contract ERC721CollectionFactoryV2 is Ownable, MinimalProxyFactory {
 
     address[] public collections;

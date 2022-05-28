@@ -89,6 +89,7 @@ module.exports = {
   },
   networks: {
     hardhat: {
+      chainId: 1337,//默认链id
       blockGasLimit: 10000000,
       gas: 10000000,
       initialBaseFeePerGas: 0

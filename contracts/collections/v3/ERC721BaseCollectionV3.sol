@@ -31,7 +31,6 @@ abstract contract ERC721BaseCollectionV3 is OwnableInitializable, ERC721Initiali
 
     event BaseURI(string _oldBaseURI, string _newBaseURI);
     event SetGlobalMinter(address indexed _minter, bool _value);
-    event SetGlobalManager(address indexed _manager, bool _value);
 
    /*
     * Init functions
@@ -50,16 +49,11 @@ abstract contract ERC721BaseCollectionV3 is OwnableInitializable, ERC721Initiali
      * @param _name - name of the contract
      * @param _symbol - symbol of the contract
      * @param _baseURI - base URI for token URIs
-     * @param _creator - creator address
-     * @param _shouldComplete - Whether the collection should be completed by the end of this call
-     * @param _isApproved - Whether the collection should be approved by the end of this call
-     * @param _rarities - rarities address
-     * @param _items - items to be added
      */
     function initialize(
         string memory _name,
         string memory _symbol,
-        string memory _baseURI,
+        string memory _baseURI
     ) external virtual {
         initImplementation();
 
@@ -74,10 +68,11 @@ abstract contract ERC721BaseCollectionV3 is OwnableInitializable, ERC721Initiali
         setBaseURI(_baseURI);
 
         createdAt = block.timestamp;
+
     }
 
     function _isMiner() internal view returns (bool) {
-        return globalManagers[_msgSender()];
+        return globalMinters[_msgSender()];
     }
 
 
@@ -88,46 +83,19 @@ abstract contract ERC721BaseCollectionV3 is OwnableInitializable, ERC721Initiali
         );
         _;
     }
-    /*
-    * Role functions
-    */
 
     /**
      * @notice Set allowed account to manage items.
-     * @param _minters - minter addresses
-     * @param _values - values array
+     * @param _minter - minter addresses
+     * @param _value - values array
      */
-    function setMinters(address[] calldata _minters, bool[] calldata _values) external onlyOwner {
-        require(
-            _minters.length == _values.length,
-            "setMinters: LENGTH_MISMATCH"
-        );
+    function setMinter(address _minter, bool _value) public onlyOwner {
 
-        for (uint256 i = 0; i < _minters.length; i++) {
-            address minter = _minters[i];
-            bool value = _values[i];
-            require(minter != address(0), "setMinters: INVALID_MINTER_ADDRESS");
-            require(globalMinters[minter] != value, "setMinters: VALUE_IS_THE_SAME");
+        require(_minter != address(0), "setMinters: INVALID_MINTER_ADDRESS");
+        require(globalMinters[_minter] != _value, "setMinters: VALUE_IS_THE_SAME");
 
-            globalMinters[minter] = value;
-            emit SetGlobalMinter(minter, value);
-        }
-    }
-
-    /**
-     * @notice Set allowed account to manage items.
-     * @param _minters - minter addresses
-     * @param _values - values array
-     */
-    function setMinter(address _minter, bool _value) external onlyOwner {
-        
-        address minter = _minter;
-        bool value = _value;
-        require(minter != address(0), "setMinters: INVALID_MINTER_ADDRESS");
-        require(globalMinters[minter] != value, "setMinters: VALUE_IS_THE_SAME");
-
-        globalMinters[minter] = value;
-        emit SetGlobalMinter(minter, value);
+        globalMinters[_minter] = _value;
+        emit SetGlobalMinter(_minter, _value);
         
     }
 
@@ -135,13 +103,13 @@ abstract contract ERC721BaseCollectionV3 is OwnableInitializable, ERC721Initiali
      * @notice Issue tokens by item ids.
      * @dev Will throw if the items have reached its maximum or is invalid
      * @param _beneficiaries - owner of the tokens
-     * @param _itemIds - item ids
+     * @param _tokenIds - token ids
      */
     function mints(address[] calldata _beneficiaries, uint256[] calldata _tokenIds) external virtual onlyMiner{
         
-        require(_beneficiaries.length == _itemIds.length, "issueTokens: LENGTH_MISMATCH");
+        require(_beneficiaries.length == _tokenIds.length, "issueTokens: LENGTH_MISMATCH");
         for (uint256 i = 0; i < _tokenIds.length; i++) {
-            mint(_beneficiaries[i], _tokenIds[i]);
+            super._mint(_beneficiaries[i], _tokenIds[i]);
         }
     }
 
@@ -149,18 +117,15 @@ abstract contract ERC721BaseCollectionV3 is OwnableInitializable, ERC721Initiali
      * @notice Issue a new token of the specified item.
      * @dev Will throw if the item has reached its maximum or is invalid
      * @param _beneficiary - owner of the token
-     * @param _itemId - item id
-     * @param _sender - transaction sender
+     * @param _tokenId - token id
      */
     function mint(address _beneficiary, uint256 _tokenId) external virtual onlyMiner{
         
         // Mint token to beneficiary
-        super._mint(_beneficiary, tokenId);
+        super._mint(_beneficiary, _tokenId);
     }
 
-    function burn(uint256 tokenId) public virtual override{
-        require(hasRole(MINTER_ROLE, _msgSender()), "BasicNFT: must have minter role to burn");
-
+    function burn(uint256 tokenId) public virtual onlyMiner{
         _burn(tokenId);
     }
 
