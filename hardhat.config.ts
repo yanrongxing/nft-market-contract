@@ -107,6 +107,13 @@ module.exports = {
       network_id: '*', // eslint-disable-line camelcase
       accounts:[process.env.PRIV_KEY]
     },
+    matic: {
+      url: 'https://polygon-rpc.com',
+      blockGasLimit: 10000000,
+      gas: 10000000,
+      network_id: '*', // eslint-disable-line camelcase
+      accounts:[process.env.PRIV_KEY]
+    },
     deploy: getDeployParams()
   },
   gasReporter: {
